@@ -1,5 +1,6 @@
 package com.gs.fundstransfer.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,10 @@ import java.util.Currency;
 @NoArgsConstructor
 @Builder
 public class OrderRequest {
+    @NotNull
     Long accountId;
+    @NotNull
     BigDecimal amount;
-    Currency currency;
+    @NotNull
+    String currency;
 }

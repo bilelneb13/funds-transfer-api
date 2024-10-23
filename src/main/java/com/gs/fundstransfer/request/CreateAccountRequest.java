@@ -12,5 +12,5 @@ import java.util.Currency;
 @Builder
 public class CreateAccountRequest {
     @NotNull(message = "Currency is required.")
-    private String currency;
+    String currency;
 }

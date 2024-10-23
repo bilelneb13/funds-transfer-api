@@ -22,7 +22,7 @@ import java.util.List;
         name = "account",
         description = "The controller responsible for accounts operations"
 )
-@RequestMapping(path = "${base_url}/accounts")
+@RequestMapping("${url}/accounts")
 @RequiredArgsConstructor
 public class AccountController {
 

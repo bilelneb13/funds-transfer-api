@@ -36,8 +36,7 @@ public class AccountServiceImpl implements AccountService {
 
     private static MonetaryAmount createInitialAccount(String currencyUnit) {
         try {
-            return Monetary.getDefaultAmountFactory()
-                    .setCurrency(currencyUnit).setNumber(BigDecimal.ZERO).create();
+            return Monetary.getDefaultAmountFactory().setCurrency(currencyUnit).setNumber(BigDecimal.ZERO).create();
         } catch (UnknownCurrencyException e) {
             throw new NotSupportedCurrencyException(e.getMessage());
         }

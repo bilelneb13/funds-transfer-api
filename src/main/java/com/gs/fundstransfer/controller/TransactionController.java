@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "transactions", description = "The controller responsible for transactions operations")
-@RequestMapping(path= "${base_url}/transactions")
+@RequestMapping("${url}/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
 

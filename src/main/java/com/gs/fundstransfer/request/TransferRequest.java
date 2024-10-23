@@ -1,20 +1,24 @@
 package com.gs.fundstransfer.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.money.MonetaryAmount;
 import java.math.BigDecimal;
-import java.util.Currency;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class TransferRequest {
+    @NotNull
     Long debitAccountId;
+    @NotNull
     Long creditAccountId;
-    MonetaryAmount monetaryToTransfer;
+    @NotNull
+    BigDecimal amount;
+    @NotNull
+    String currency;
 }

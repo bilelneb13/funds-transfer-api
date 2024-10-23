@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import javax.money.MonetaryAmount;
 import javax.money.NumberValue;
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
@@ -24,5 +25,5 @@ public class TransferDto {
     MonetaryAmount debitedAmount;
     @JsonSerialize(using = MonetaryAmountSerializer.class)
     MonetaryAmount creditedAmount;
-    NumberValue rate;
+    BigDecimal rate;
 }
