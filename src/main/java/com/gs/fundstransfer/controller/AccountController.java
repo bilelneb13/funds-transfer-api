@@ -18,10 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@Tag(
-        name = "account",
-        description = "The controller responsible for accounts operations"
-)
+@Tag(name = "account", description = "The controller responsible for accounts operations")
 @RequestMapping("${url}/accounts")
 @RequiredArgsConstructor
 public class AccountController {
@@ -39,8 +36,7 @@ public class AccountController {
      * @return a ResponseEntity containing the created account
      */
     @Operation(summary = "Create a new account", description = "Creates a new account with the given details.")
-    @ApiResponse(responseCode = "200", description = "Account created successfully",
-            content = @Content(schema = @Schema(implementation = AccountDto.class)))
+    @ApiResponse(responseCode = "200", description = "Account created successfully", content = @Content(schema = @Schema(implementation = AccountDto.class)))
     @ApiResponse(responseCode = "400", description = "Invalid request")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     @PostMapping
@@ -55,8 +51,7 @@ public class AccountController {
      * @return a {@code ResponseEntity} containing the {@code AccountDto} of the requested account
      */
     @Operation(summary = "Get account by ID", description = "Retrieves account details by its unique identifier.")
-    @ApiResponse(responseCode = "200", description = "Account retrieved successfully",
-            content = @Content(schema = @Schema(implementation = AccountDto.class)))
+    @ApiResponse(responseCode = "200", description = "Account retrieved successfully", content = @Content(schema = @Schema(implementation = AccountDto.class)))
     @ApiResponse(responseCode = "404", description = "Account not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     @Parameter(name = "id", description = "Unique identifier of the account", required = true)
@@ -71,10 +66,7 @@ public class AccountController {
      * @return a ResponseEntity containing a list of AccountDto objects representing all accounts
      */
     @Operation(summary = "Get all accounts", description = "Returns a list of all account details.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of accounts"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully retrieved the list of accounts"), @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping
     public ResponseEntity<List<AccountDto>> getAll() {
         return ResponseEntity.ok(accountService.getAll());

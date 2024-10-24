@@ -2,6 +2,7 @@ package com.gs.fundstransfer.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gs.fundstransfer.dto.AccountDto;
+import com.gs.fundstransfer.exceptions.AccountNotFoundException;
 import com.gs.fundstransfer.request.CreateAccountRequest;
 import com.gs.fundstransfer.services.AccountService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,9 +16,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,7 +41,7 @@ public class AccountControllerTest {
 
     private ObjectMapper objectMapper;
 
-    @Value("${url}") // Inject the base URL from properties
+    @Value("${url}")
     private String baseUrl;
 
     @BeforeEach
@@ -50,19 +54,21 @@ public class AccountControllerTest {
     void testCreateAccount_successfulCreation() throws Exception {
         // Arrange
         CreateAccountRequest createAccountRequest = new CreateAccountRequest();
-        createAccountRequest.setCurrency("EUR"); // Set other required fields as necessary
+        createAccountRequest.setCurrency("EUR");
 
         AccountDto accountDto = new AccountDto();
-        accountDto.setCurrency("EUR"); // Set other fields as necessary
-
+        accountDto.setCurrency("EUR");
+        accountDto.setBalance(BigDecimal.ZERO);
+        accountDto.setOwnerId(4336178608L);
         when(accountService.save(any(CreateAccountRequest.class))).thenReturn(accountDto);
 
         // Act & Assert
-        mockMvc.perform(post(baseUrl + "/accounts") // Adjust this based on your ${url} property
-                                .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post(baseUrl + "/accounts").contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createAccountRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(accountDto.getOwnerId()))
+                .andExpect(jsonPath("$.ownerId", greaterThanOrEqualTo(1000000000L)))
+                .andExpect(jsonPath("$.ownerId", lessThanOrEqualTo(9999999999L)))
+                .andExpect(jsonPath("$.balance").value(accountDto.getBalance()))
                 .andExpect(jsonPath("$.currency").value(accountDto.getCurrency()));
     }
 
@@ -70,71 +76,81 @@ public class AccountControllerTest {
     void testCreateAccount_unsuccessfulCreation() throws Exception {
         // Arrange
         CreateAccountRequest createAccountRequest = new CreateAccountRequest();
-        createAccountRequest.setCurrency("EUR"); // Set other required fields as necessary
+        createAccountRequest.setCurrency(null);
 
-        when(accountService.save(any(CreateAccountRequest.class))).thenThrow(new RuntimeException());
+            when(accountService.save(any(CreateAccountRequest.class))).thenThrow(new RuntimeException());
 
         // Act & Assert
-        mockMvc.perform(post(baseUrl + "/accounts") // Adjust this based on your ${url} property
-                                .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post(baseUrl + "/accounts").contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(createAccountRequest)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void testGetAccount_success() throws Exception {
         // Arrange
-        Long accountId = 1L;
+        Long accountId = 1000000000L;
         AccountDto accountDto = new AccountDto();
-        accountDto.setCurrency("EUR"); // Set other fields as necessary
+        accountDto.setCurrency("EUR");
+        accountDto.setBalance(BigDecimal.ZERO);
+        accountDto.setOwnerId(accountId);
 
         when(accountService.get(accountId)).thenReturn(accountDto);
 
         // Act & Assert
-        mockMvc.perform(get(baseUrl + "/accounts/{id}", accountId) // Adjust this based on your ${url} property
-                                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get(baseUrl + "/accounts/{id}", accountId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(accountDto.getOwnerId()))
-                .andExpect(jsonPath("$.currency").value(accountDto.getCurrency()));
+                .andExpect(jsonPath("$.ownerId").value(accountDto.getOwnerId()))
+                .andExpect(jsonPath("$.currency").value(accountDto.getCurrency()))
+                .andExpect(jsonPath("$.balance").value(accountDto.getBalance()));
     }
 
     @Test
     void testGetAccount_notFound() throws Exception {
         // Arrange
-        Long accountId = 1L;
-        when(accountService.get(accountId)).thenThrow(new RuntimeException("Account not found")); // Adjust exception handling
+        Long accountId = 1000000000L;
+        when(accountService.get(accountId)).thenThrow(new AccountNotFoundException(1000000000L));
 
         // Act & Assert
         mockMvc.perform(get(baseUrl + "/accounts/{id}", accountId) // Adjust this based on your ${url} property
-                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound());
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void testGetAllAccounts_success() throws Exception {
         // Arrange
         AccountDto accountDto1 = new AccountDto();
-        accountDto1.setCurrency("EUR"); // Set other fields as necessary
+        accountDto1.setCurrency("EUR");
+        accountDto1.setOwnerId(1000000000L);
+        accountDto1.setBalance(BigDecimal.ZERO);
 
         AccountDto accountDto2 = new AccountDto();
-        accountDto2.setCurrency("USD"); // Set other fields as necessary
+        accountDto2.setCurrency("USD");
+        accountDto2.setOwnerId(1000000001L);
+        accountDto2.setBalance(BigDecimal.ZERO);
 
         when(accountService.getAll()).thenReturn(List.of(accountDto1, accountDto2));
 
-        // Act & Assert
-        mockMvc.perform(get("/api/accounts") // Adjust this based on your ${url} property
-                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath(
-                "$").isArray()).andExpect(jsonPath("$[0].id").value(accountDto1.getOwnerId())).andExpect(jsonPath(
-                "$[1].id").value(accountDto2.getOwnerId()));
+        mockMvc.perform(get(baseUrl + "/accounts").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].ownerId").value(accountDto1.getOwnerId()))
+                .andExpect(jsonPath("$[0].currency").value(accountDto1.getCurrency()))
+                .andExpect(jsonPath("$[0].balance").value(accountDto1.getBalance()))
+                .andExpect(jsonPath("$[1].ownerId").value(accountDto2.getOwnerId()))
+                .andExpect(jsonPath("$[1].currency").value(accountDto2.getCurrency()))
+                .andExpect(jsonPath("$[1].balance").value(accountDto2.getBalance()));
+
     }
 
     @Test
     void testGetAllAccounts_emptyList() throws Exception {
-        // Arrange
         when(accountService.getAll()).thenReturn(Collections.emptyList());
 
-        // Act & Assert
-        mockMvc.perform(get(baseUrl + "/accounts") // Adjust this based on your ${url} property
-                                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath(
-                "$").isArray()).andExpect(jsonPath("$").isEmpty());
+        mockMvc.perform(get(baseUrl + "/accounts").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 }

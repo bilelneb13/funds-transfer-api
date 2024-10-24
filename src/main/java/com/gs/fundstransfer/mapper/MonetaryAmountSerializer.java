@@ -11,8 +11,12 @@ public class MonetaryAmountSerializer extends JsonSerializer<MonetaryAmount> {
     @Override
     public void serialize(MonetaryAmount o, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("amount", o.getNumber().doubleValueExact());
-        jsonGenerator.writeStringField("currency", o.getCurrency().getCurrencyCode());
+        jsonGenerator.writeNumberField("amount",
+                                       o.getNumber()
+                                               .doubleValueExact());
+        jsonGenerator.writeStringField("currency",
+                                       o.getCurrency()
+                                               .getCurrencyCode());
         jsonGenerator.writeEndObject();
     }
 }

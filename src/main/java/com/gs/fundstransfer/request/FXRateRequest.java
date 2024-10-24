@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 
 import javax.money.CurrencyUnit;
 import javax.money.MonetaryAmount;
-import java.math.BigDecimal;
-import java.util.Currency;
 
 @Data
 @AllArgsConstructor

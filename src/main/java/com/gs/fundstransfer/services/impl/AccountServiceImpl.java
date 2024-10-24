@@ -29,14 +29,19 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDto save(CreateAccountRequest accountRequest) {
-        var account = Account.builder().money(createInitialAccount(accountRequest.getCurrency())).build();
+        var account = Account.builder()
+                .money(createInitialAccount(accountRequest.getCurrency()))
+                .build();
         Account saved = accountRepository.save(account);
         return accountMapper.toDto(saved);
     }
 
     private static MonetaryAmount createInitialAccount(String currencyUnit) {
         try {
-            return Monetary.getDefaultAmountFactory().setCurrency(currencyUnit).setNumber(BigDecimal.ZERO).create();
+            return Monetary.getDefaultAmountFactory()
+                    .setCurrency(currencyUnit)
+                    .setNumber(BigDecimal.ZERO)
+                    .create();
         } catch (UnknownCurrencyException e) {
             throw new NotSupportedCurrencyException(e.getMessage());
         }

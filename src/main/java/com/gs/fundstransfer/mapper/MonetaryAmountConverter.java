@@ -17,7 +17,9 @@ public class MonetaryAmountConverter implements AttributeConverter<MonetaryAmoun
         if (attribute == null) {
             return null;
         }
-        return attribute.getNumber().toString() + "|" + attribute.getCurrency().getCurrencyCode();
+        return attribute.getNumber()
+                .toString() + "|" + attribute.getCurrency()
+                .getCurrencyCode();
     }
 
     // Convert the String format from the database back into a MonetaryAmount

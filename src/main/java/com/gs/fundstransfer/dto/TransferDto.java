@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.money.MonetaryAmount;
-import javax.money.NumberValue;
 import java.math.BigDecimal;
 
 @Data

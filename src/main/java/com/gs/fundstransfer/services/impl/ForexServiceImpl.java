@@ -22,13 +22,17 @@ public class ForexServiceImpl implements ForexService {
         MonetaryAmount convertedAmount = null;
         ExchangeRate exchangeRate;
         try {
-            convertedAmount = fXRateRequest.getMonetaryAmount().with(conversion);
+            convertedAmount = fXRateRequest.getMonetaryAmount()
+                    .with(conversion);
             // Retrieve the exchange rate used
             exchangeRate = conversion.getExchangeRate(fXRateRequest.getMonetaryAmount());
 
         } catch (MonetaryException e) {
             throw new UnavailableFXRatesException("Unable to retrieve exchange rate");
         }
-        return FXRateResponse.builder().convertedAmount(convertedAmount).exchangeRate(exchangeRate).build();
+        return FXRateResponse.builder()
+                .convertedAmount(convertedAmount)
+                .exchangeRate(exchangeRate)
+                .build();
     }
 }

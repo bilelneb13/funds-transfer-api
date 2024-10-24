@@ -1,10 +1,10 @@
 package com.gs.fundstransfer.request;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
-import javax.money.CurrencyUnit;
-import java.util.Currency;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor

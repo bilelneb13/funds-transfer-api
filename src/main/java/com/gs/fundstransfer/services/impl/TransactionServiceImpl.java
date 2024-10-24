@@ -40,17 +40,19 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransferDto deposit(OrderRequest request) {
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
-                .orElseThrow(() -> new AccountNotFoundException(
-                        request.getAccountId()));
+                .orElseThrow(() -> new AccountNotFoundException(request.getAccountId()));
         // Check if the source and target currencies are the same
-        if (request.getCurrency().equals(account.getMoney().getCurrency().getCurrencyCode())) {
+        if (request.getCurrency()
+                .equals(account.getMoney()
+                                .getCurrency()
+                                .getCurrencyCode())) {
             // No need for conversion if currencies are the same
             MonetaryAmount moneyToDeposit = Monetary.getDefaultAmountFactory()
                     .setCurrency(request.getCurrency())
-                    .setNumber(
-                            request.getAmount())
+                    .setNumber(request.getAmount())
                     .create();
-            account.setMoney(account.getMoney().add(moneyToDeposit));
+            account.setMoney(account.getMoney()
+                                     .add(moneyToDeposit));
             accountRepository.save(account);
             return TransferDto.builder()
                     .creditAccountId(request.getAccountId())
@@ -63,14 +65,16 @@ public class TransactionServiceImpl implements TransactionService {
         FXRateRequest fXRateRequest = createFXRequest(request, account);
         FXRateResponse fxRateResponse = forexService.exchange(fXRateRequest);
 
-        account.setMoney(account.getMoney().add(fxRateResponse.getConvertedAmount()));
+        account.setMoney(account.getMoney()
+                                 .add(fxRateResponse.getConvertedAmount()));
         accountRepository.save(account);
-        BigDecimal rate = fxRateResponse.getExchangeRate().getFactor().numberValue(BigDecimal.class);
+        BigDecimal rate = fxRateResponse.getExchangeRate()
+                .getFactor()
+                .numberValue(BigDecimal.class);
         return TransferDto.builder()
                 .creditAccountId(request.getAccountId())
                 .creditedAmount(fxRateResponse.getConvertedAmount())
-                .rate(
-                        rate)
+                .rate(rate)
                 .build();
     }
 
@@ -81,22 +85,25 @@ public class TransactionServiceImpl implements TransactionService {
     public TransferDto withdraw(OrderRequest request) {
 
         Account account = accountRepository.findByIdWithLock(request.getAccountId())
-                .orElseThrow(() -> new AccountNotFoundException(
-                        request.getAccountId()));
+                .orElseThrow(() -> new AccountNotFoundException(request.getAccountId()));
 
         // Check if the source and target currencies are the same
-        if (request.getCurrency().equals(account.getMoney().getCurrency().getCurrencyCode())) {
+        if (request.getCurrency()
+                .equals(account.getMoney()
+                                .getCurrency()
+                                .getCurrencyCode())) {
             // No need for conversion if currencies are the same
             MonetaryAmount moneyToWithdraw = Monetary.getDefaultAmountFactory()
                     .setCurrency(request.getCurrency())
-                    .setNumber(
-                            request.getAmount())
+                    .setNumber(request.getAmount())
                     .create();
-            if (account.getMoney().compareTo(moneyToWithdraw) < 0) {
+            if (account.getMoney()
+                    .compareTo(moneyToWithdraw) < 0) {
                 throw new UnsufficientFundsException("InsufficientFunds in " + account);
 
             }
-            account.setMoney(account.getMoney().subtract(moneyToWithdraw));
+            account.setMoney(account.getMoney()
+                                     .subtract(moneyToWithdraw));
             accountRepository.save(account);
             return TransferDto.builder()
                     .debitAccountId(request.getAccountId())
@@ -108,21 +115,24 @@ public class TransactionServiceImpl implements TransactionService {
         FXRateRequest fXRateRequest = createFXRequest(request, account);
 
         FXRateResponse fxRateResponse = forexService.exchange(fXRateRequest);
-        if (account.getMoney().compareTo(fxRateResponse.getConvertedAmount()) < 0) {
+        if (account.getMoney()
+                .compareTo(fxRateResponse.getConvertedAmount()) < 0) {
             throw new UnsufficientFundsException("InsufficientFunds in " + account);
 
         }
-        account.setMoney(account.getMoney().subtract(fxRateResponse.getConvertedAmount()));
+        account.setMoney(account.getMoney()
+                                 .subtract(fxRateResponse.getConvertedAmount()));
 
         accountRepository.save(account);
 
-        BigDecimal rate = fxRateResponse.getExchangeRate().getFactor().numberValue(BigDecimal.class);
+        BigDecimal rate = fxRateResponse.getExchangeRate()
+                .getFactor()
+                .numberValue(BigDecimal.class);
 
         return TransferDto.builder()
                 .debitAccountId(request.getAccountId())
                 .debitedAmount(fxRateResponse.getConvertedAmount())
-                .rate(
-                        rate)
+                .rate(rate)
                 .build();
     }
 
@@ -139,33 +149,38 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         Account debitAccount = accountRepository.findByIdWithLock(debitAccountId)
-                .orElseThrow(() -> new AccountNotFoundException(
-                        debitAccountId));
+                .orElseThrow(() -> new AccountNotFoundException(debitAccountId));
 
         Account creditAccount = accountRepository.findByIdWithLock(creditAccountId)
-                .orElseThrow(() -> new AccountNotFoundException(
-                        creditAccountId));
+                .orElseThrow(() -> new AccountNotFoundException(creditAccountId));
 
         MonetaryAmount debitMoneyRequest = Monetary.getDefaultAmountFactory()
                 .setCurrency(request.getCurrency())
-                .setNumber(
-                        request.getAmount())
+                .setNumber(request.getAmount())
                 .create();
 
-        if (!debitAccount.getMoney().getCurrency().equals(debitMoneyRequest.getCurrency())) {
+        if (!debitAccount.getMoney()
+                .getCurrency()
+                .equals(debitMoneyRequest.getCurrency())) {
             throw new NotSupportedCurrencyException("The Request Currency should be " + debitAccount.getMoney()
                     .getCurrency());
         }
-        if (debitAccount.getMoney().compareTo(debitMoneyRequest) < 0) {
+        if (debitAccount.getMoney()
+                .compareTo(debitMoneyRequest) < 0) {
             throw new UnsufficientFundsException("InsufficientFunds in " + debitAccount);
         }
 
-        debitAccount.setMoney(debitAccount.getMoney().subtract(debitMoneyRequest));
+        debitAccount.setMoney(debitAccount.getMoney()
+                                      .subtract(debitMoneyRequest));
 
         // Check if debit and credit accounts have the same currency
-        if (debitAccount.getMoney().getCurrency().equals(creditAccount.getMoney().getCurrency())) {
+        if (debitAccount.getMoney()
+                .getCurrency()
+                .equals(creditAccount.getMoney()
+                                .getCurrency())) {
             // No conversion needed
-            creditAccount.setMoney(creditAccount.getMoney().add(debitMoneyRequest));
+            creditAccount.setMoney(creditAccount.getMoney()
+                                           .add(debitMoneyRequest));
 
             accountRepository.save(debitAccount);
             accountRepository.save(creditAccount);
@@ -183,37 +198,43 @@ public class TransactionServiceImpl implements TransactionService {
         FXRateResponse fxRateResponse = forexService.exchange(fXRateRequest);
 
 
-        creditAccount.setMoney(creditAccount.getMoney().add(fxRateResponse.getConvertedAmount()));
+        creditAccount.setMoney(creditAccount.getMoney()
+                                       .add(fxRateResponse.getConvertedAmount()));
 
         accountRepository.save(debitAccount);
         accountRepository.save(creditAccount);
-        BigDecimal rate = fxRateResponse.getExchangeRate().getFactor().numberValue(BigDecimal.class);
+        BigDecimal rate = fxRateResponse.getExchangeRate()
+                .getFactor()
+                .numberValue(BigDecimal.class);
         return TransferDto.builder()
                 .rate(rate)
                 .debitedAmount(debitMoneyRequest)
                 .creditedAmount(fxRateResponse.getConvertedAmount())
-                .debitAccountId(
-                        debitAccountId)
+                .debitAccountId(debitAccountId)
                 .creditAccountId(creditAccountId)
                 .build();
     }
 
     private static FXRateRequest createFXRequest(OrderRequest request, Account account) {
-        return FXRateRequest.builder().monetaryAmount(Monetary.getDefaultAmountFactory()
-                                                              .setCurrency(request.getCurrency())
-                                                              .setNumber(
-                                                                      request.getAmount())
-                                                              .create()).targetCurrency(account.getMoney()
-                                                                                                .getCurrency()).build();
+        return FXRateRequest.builder()
+                .monetaryAmount(Monetary.getDefaultAmountFactory()
+                                        .setCurrency(request.getCurrency())
+                                        .setNumber(request.getAmount())
+                                        .create())
+                .targetCurrency(account.getMoney()
+                                        .getCurrency())
+                .build();
     }
 
     private static FXRateRequest createFXRequest(TransferRequest request, Account account) {
-        return FXRateRequest.builder().monetaryAmount(Monetary.getDefaultAmountFactory()
-                                                              .setCurrency(request.getCurrency())
-                                                              .setNumber(
-                                                                      request.getAmount())
-                                                              .create()).targetCurrency(account.getMoney()
-                                                                                                .getCurrency()).build();
+        return FXRateRequest.builder()
+                .monetaryAmount(Monetary.getDefaultAmountFactory()
+                                        .setCurrency(request.getCurrency())
+                                        .setNumber(request.getAmount())
+                                        .create())
+                .targetCurrency(account.getMoney()
+                                        .getCurrency())
+                .build();
     }
 
 }

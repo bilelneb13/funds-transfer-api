@@ -1,6 +1,5 @@
 package com.gs.fundstransfer.controller;
 
-import com.gs.fundstransfer.dto.AccountDto;
 import com.gs.fundstransfer.dto.TransferDto;
 import com.gs.fundstransfer.request.OrderRequest;
 import com.gs.fundstransfer.request.TransferRequest;
@@ -30,6 +29,7 @@ public class TransactionController {
     TransferDto withdraw(@Valid @RequestBody OrderRequest request) {
         return transactionService.withdraw(request);
     }
+
     @PostMapping("/deposit")
     TransferDto deposit(@Valid @RequestBody OrderRequest request) {
         return transactionService.deposit(request);

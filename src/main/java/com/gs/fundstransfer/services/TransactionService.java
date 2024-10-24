@@ -1,6 +1,5 @@
 package com.gs.fundstransfer.services;
 
-import com.gs.fundstransfer.dto.AccountDto;
 import com.gs.fundstransfer.dto.TransferDto;
 import com.gs.fundstransfer.request.OrderRequest;
 import com.gs.fundstransfer.request.TransferRequest;
