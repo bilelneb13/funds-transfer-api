@@ -66,7 +66,9 @@ public class AccountController {
      * @return a ResponseEntity containing a list of AccountDto objects representing all accounts
      */
     @Operation(summary = "Get all accounts", description = "Returns a list of all account details.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Successfully retrieved the list of accounts"), @ApiResponse(responseCode = "500", description = "Internal server error")})
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of accounts"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")})
     @GetMapping
     public ResponseEntity<List<AccountDto>> getAll() {
         return ResponseEntity.ok(accountService.getAll());
